@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KingSizeTravel - choose your next holiday destination!</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://wallpapercat.com/w/full/3/a/2/705555-1920x1080-desktop-full-hd-mallorca-wallpaper-photo.jpg') no-repeat center center fixed;
+            background-size: cover;
+            opacity: 0.65;
+            z-index: -1;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            width: 400px;
+            position: relative;
+            z-index: 1;
+        }  
+        
+        .phone-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .phone-prefix {
+            background-color: #f0f0f0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+
+        #phone {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        #region-group {
+            display: none;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>KingSizeTravel</h1> 
+        <h2>Choose your next holiday destination!</h2>
+        <form id="travelForm" onsubmit="return submitForm(event)">
+            <div class="form-group">
+                <label for="firstName">First Name *</label>
+                <input type="text" id="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name *</label>
+                <input type="text" id="lastName" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number * (only digits accepted)</label>
+                <div class="phone-wrapper">
+                    <div class="phone-prefix">+48</div>
+                    <input type="tel" id="phone" pattern="[0-9]{9}" placeholder="123456789" required maxlength="9">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="destination">Destination Interest *</label>
+                <select id="destination" required onchange="toggleRegionField()">
+                    <option value="">Select Destination</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Northern America">Northern America</option>
+                    <option value="Southern America">Southern America</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Oceania">Oceania</option>
+                    <option value="Asia">Asia</option>
+                </select>
+            </div>
+            <div class="form-group" id="region-group">
+                <label for="region">Region *</label>
+                <select id="region">
+                    <option value="">Select Region</option>
+                    <option value="Southern Europe">Southern Europe</option>
+                    <option value="Northern Europe">Northern Europe</option>
+                    <option value="Western Europe">Western Europe</option>
+                    <option value="Eastern Europe">Eastern Europe</option>
+                </select>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <p>Thank you for submitting your interest in our offer!</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        // Toggle region field visibility based on destination
+        function toggleRegionField() {
+            const destination = document.getElementById('destination').value;
+            const regionGroup = document.getElementById('region-group');
+            const regionSelect = document.getElementById('region');
+            
+            if (destination === 'Europe') {
+                regionGroup.style.display = 'block';
+                regionSelect.setAttribute('required', 'true');
+            } else {
+                regionGroup.style.display = 'none';
+                regionSelect.removeAttribute('required');
+            }
+        }
+
+        // Handle form submission with popup
+        function submitForm(event) {
+            event.preventDefault(); // Prevent default submission (e.g., page reload)
+            const form = document.getElementById('travelForm');
+            if (form.checkValidity()) {
+                const phone = document.getElementById('phone').value;
+                const fullPhoneNumber = '+48' + phone;
+                console.log('Full Phone Number:', fullPhoneNumber);
+                showPopup();
+            }
+            return false;
+        }
+
+        // Show popup and overlay
+        function showPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        // Close popup, hide overlay, and reset form
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('travelForm').reset();
+            document.getElementById('region-group').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
